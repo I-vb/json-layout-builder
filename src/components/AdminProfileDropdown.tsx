@@ -2,19 +2,17 @@ import { Home, LogOut, Settings } from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { ROUTE_PATHS } from '../lib/appRoutes'
-
-interface AdminProfileDropdownProps {
-  onSignOut: () => void
-}
+import { useDashboardStore } from '../store/useDashboardStore'
 
 const ADMIN_DISPLAY_NAME = 'Admin User'
 const ADMIN_EMAIL = 'admin@saaslaunch.io'
 const ADMIN_INITIALS = 'SA'
 
-export function AdminProfileDropdown({ onSignOut }: AdminProfileDropdownProps) {
+export function AdminProfileDropdown() {
   const [isOpen, setIsOpen] = useState(false)
   const containerRef = useRef<HTMLDivElement>(null)
   const navigate = useNavigate()
+  const signOut = useDashboardStore((state) => state.signOut)
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -42,7 +40,7 @@ export function AdminProfileDropdown({ onSignOut }: AdminProfileDropdownProps) {
 
   function handleSignOut() {
     setIsOpen(false)
-    onSignOut()
+    signOut()
     navigate(ROUTE_PATHS.home)
   }
 
@@ -54,7 +52,7 @@ export function AdminProfileDropdown({ onSignOut }: AdminProfileDropdownProps) {
         aria-haspopup="true"
         aria-expanded={isOpen}
         aria-label="Admin profile menu"
-        className="flex h-9 w-9 items-center justify-center rounded-full bg-slate-900 text-xs font-bold text-white ring-2 ring-slate-900 ring-offset-2 transition hover:bg-slate-700 focus:outline-none"
+        className="flex h-10 w-10 items-center justify-center rounded-full bg-[radial-gradient(circle_at_top,_#67e8f9,_#0f172a_58%)] text-xs font-bold text-white ring-2 ring-white/60 ring-offset-2 ring-offset-transparent transition hover:scale-[1.02] focus:outline-none"
       >
         {ADMIN_INITIALS}
       </button>
@@ -62,25 +60,23 @@ export function AdminProfileDropdown({ onSignOut }: AdminProfileDropdownProps) {
       {isOpen && (
         <div
           role="menu"
-          className="absolute right-0 top-12 z-50 w-72 overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-2xl"
+          className="absolute right-0 top-12 z-50 w-80 overflow-hidden rounded-[1.75rem] border border-white/60 bg-white/95 shadow-2xl backdrop-blur"
         >
-          {/* ── Segment 1: Identity Meta Header ── */}
-          <div className="flex items-start gap-3 p-4">
-            <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-slate-900 text-sm font-bold text-white">
+          <div className="flex items-start gap-3 bg-[linear-gradient(135deg,_rgba(14,116,144,0.12),_rgba(15,23,42,0.02))] p-5">
+            <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-[radial-gradient(circle_at_top,_#67e8f9,_#0f172a_58%)] text-sm font-bold text-white">
               {ADMIN_INITIALS}
             </div>
             <div className="min-w-0 flex-1">
-              <p className="truncate text-sm font-semibold text-slate-900">{ADMIN_DISPLAY_NAME}</p>
+              <p className="truncate text-sm font-semibold text-slate-950">{ADMIN_DISPLAY_NAME}</p>
               <p className="truncate text-xs text-slate-500">{ADMIN_EMAIL}</p>
-              <span className="mt-2 inline-flex items-center rounded-full bg-violet-100 px-2.5 py-0.5 text-[11px] font-semibold text-violet-700 ring-1 ring-inset ring-violet-200">
-                Super Admin
+              <span className="mt-2 inline-flex items-center rounded-full bg-slate-950 px-2.5 py-1 text-[11px] font-semibold text-cyan-100 ring-1 ring-inset ring-cyan-300/20">
+                [ Role: Super Admin ]
               </span>
             </div>
           </div>
 
           <div className="border-t border-slate-100" />
 
-          {/* ── Segment 2: Inter-workspace Routing Controls ── */}
           <div className="p-2">
             <button
               type="button"
@@ -104,7 +100,6 @@ export function AdminProfileDropdown({ onSignOut }: AdminProfileDropdownProps) {
 
           <div className="border-t border-slate-100" />
 
-          {/* ── Segment 3: Destructive Session Actions ── */}
           <div className="p-2">
             <button
               type="button"

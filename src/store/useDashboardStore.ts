@@ -5,12 +5,16 @@ import type {
   DeviceMode,
   DraftLayout,
   MenuNode,
+  PageRegistryEntry,
+  PageSection,
+  ToastMessage,
   UserRole,
   WebsiteJSON,
 } from '../types/schema'
 
 const STORAGE_KEYS = {
   menus: 'saaslaunch_menus',
+  pagesRegistry: 'saaslaunch_pages_registry',
   drafts: 'saaslaunch_drafts',
   draftsLegacy: 'saaslaunch_drafts_pool',
   publishedPages: 'saaslaunch_published_pages',
@@ -21,47 +25,93 @@ const STORAGE_KEYS = {
   auditLog: 'saaslaunch_audit_log',
 } as const
 
+const seedHomeSections: PageSection[] = [
+  {
+    type: 'Hero',
+    id: 'hero_01',
+    title: 'Modern IT Solutions for Global Business',
+    subtitle:
+      'Empowering organizations with reliable software and scalable digital infrastructure.',
+    primaryCTA: 'Get Started',
+    secondaryCTA: 'Watch Demo',
+  },
+  {
+    type: 'FeatureGrid',
+    id: 'features_01',
+    features: [
+      {
+        title: 'Cloud Platforms',
+        desc: 'Architect resilient cloud foundations with multi-region delivery and governance.',
+      },
+      {
+        title: 'Cyber Defense',
+        desc: 'Operate with zero-trust controls, continuous monitoring, and incident readiness.',
+      },
+      {
+        title: 'Data Intelligence',
+        desc: 'Convert raw operational telemetry into revenue-driving product decisions.',
+      },
+    ],
+  },
+  {
+    type: 'Testimonials',
+    id: 'testimonials_01',
+    text:
+      'SaaSLaunch gives our delivery and marketing teams one synchronized system for publishing high-confidence changes.',
+    rating: 5,
+  },
+]
+
+const seedPagesRegistry: PageRegistryEntry[] = [
+  {
+    id: 'home-live-id',
+    title: 'Apex Consulting - Main Homepage',
+    slug: '/',
+    sections: seedHomeSections,
+  },
+  {
+    id: 'services-live-id',
+    title: 'Apex Consulting - Services Overview',
+    slug: '/services',
+    sections: [
+      {
+        type: 'Hero',
+        id: 'services_hero_01',
+        title: 'Managed Technology Services for Scaling Teams',
+        subtitle:
+          'Cloud delivery, security strategy, and application modernization under one operating model.',
+        primaryCTA: 'Plan Engagement',
+        secondaryCTA: 'See Capabilities',
+      },
+      {
+        type: 'FeatureGrid',
+        id: 'services_features_01',
+        features: [
+          {
+            title: 'Cloud Platforms',
+            desc: 'Landing zones, observability, and release automation tailored to regulated growth.',
+          },
+          {
+            title: 'Cyber Defense',
+            desc: 'Security engineering programs spanning IAM, compliance evidence, and threat response.',
+          },
+          {
+            title: 'Product Delivery',
+            desc: 'Application teams aligned with measurable outcomes, not disconnected ticket queues.',
+          },
+        ],
+      },
+    ],
+  },
+]
+
 const seedHomePage: WebsiteJSON = {
-  page: 'home',
-  title: 'Apex Consulting - Modern IT Solutions',
+  page: '/',
+  title: 'Apex Consulting - Main Homepage',
   meta_description:
-    'Empowering your organization with reliable software and scalable digital infrastructure.',
-  keywords: ['IT Consulting', 'Cloud Migration', 'Cybersecurity', 'Data Analytics'],
-  sections: [
-    {
-      type: 'Hero',
-      id: 'hero1',
-      title: 'Modern IT Solutions for Global Business',
-      subtitle:
-        'Empowering your organization with reliable software and scalable digital infrastructure.',
-      primaryCTA: 'Get Started',
-      secondaryCTA: 'Watch Demo',
-    },
-    {
-      type: 'FeatureGrid',
-      id: 'features1',
-      features: [
-        {
-          title: 'Cloud Migration',
-          desc: 'Secure, fast, and completely seamless cloud scaling pipelines.',
-        },
-        {
-          title: 'Cybersecurity',
-          desc: 'Zero-trust network perimeters monitoring vulnerabilities 24/7.',
-        },
-        {
-          title: 'Data Analytics',
-          desc: 'Turn cold infrastructural data into automated growth pipelines.',
-        },
-      ],
-    },
-    {
-      type: 'Testimonials',
-      id: 'testimonials1',
-      text: 'This JSON infrastructure completely revolutionized how our marketing team handles production changes.',
-      rating: 5,
-    },
-  ],
+    'Empowering organizations with reliable software and scalable digital infrastructure.',
+  keywords: ['IT Consulting', 'Cloud Platforms', 'Cyber Defense', 'Data Intelligence'],
+  sections: seedHomeSections,
 }
 
 const seedMenus: MenuNode[] = [
@@ -91,7 +141,7 @@ const seedDrafts: DraftLayout[] = [
     author: 'Marketing Team',
     last_updated: 'Just Now',
     status: 'Pending Review',
-    route: '/pages/home-v2-draft',
+    route: '/promo/enterprise',
     meta_description:
       'Quarterly promotion variant for enterprise IT modernization campaigns.',
     keywords: ['Q3 Campaign', 'Enterprise IT', 'Digital Infrastructure'],
@@ -111,6 +161,14 @@ const seedDrafts: DraftLayout[] = [
 
 const seedPublishedPages: Record<string, WebsiteJSON> = {
   '/': seedHomePage,
+  '/services': {
+    page: '/services',
+    title: 'Apex Consulting - Services Overview',
+    meta_description:
+      'Cloud delivery, security strategy, and product modernization for ambitious B2B teams.',
+    keywords: ['Cloud Platforms', 'Cyber Defense', 'Product Delivery'],
+    sections: seedPagesRegistry[1].sections,
+  },
 }
 
 function nowLabel(): string {
@@ -141,6 +199,14 @@ function pretty(data: WebsiteJSON): string {
   return JSON.stringify(data, null, 2)
 }
 
+function normalizeSlug(value: string): string {
+  if (!value.trim()) {
+    return '/'
+  }
+
+  return value.startsWith('/') ? value : `/${value}`
+}
+
 function addAuditEntry(existing: string[], message: string): string[] {
   return [`${nowTime()} - ${message}`, ...existing].slice(0, 12)
 }
@@ -164,7 +230,7 @@ export function canAccessRole(userRole: UserRole, requiredRole?: UserRole): bool
 
 function draftToWebsiteJSON(draft: DraftLayout): WebsiteJSON {
   return {
-    page: draft.route.replace(/^\//, '') || 'page',
+    page: normalizeSlug(draft.route),
     title: draft.title,
     meta_description: draft.meta_description,
     keywords: draft.keywords,
@@ -180,13 +246,46 @@ function websiteToDraft(
   return {
     ...previous,
     title: website.title,
-    route: website.page.startsWith('/') ? website.page : `/${website.page}`,
+    route: normalizeSlug(website.page),
     meta_description: website.meta_description,
     keywords: website.keywords ?? [],
     sections: website.sections,
     status,
     last_updated: nowLabel(),
   }
+}
+
+function draftToRegistryEntry(draft: DraftLayout): PageRegistryEntry {
+  return {
+    id: draft.page_id,
+    title: draft.title,
+    slug: normalizeSlug(draft.route),
+    sections: draft.sections,
+  }
+}
+
+function websiteToRegistryEntry(website: WebsiteJSON, id: string): PageRegistryEntry {
+  return {
+    id,
+    title: website.title,
+    slug: normalizeSlug(website.page),
+    sections: website.sections,
+  }
+}
+
+function upsertRegistryEntry(
+  entries: PageRegistryEntry[],
+  entry: PageRegistryEntry,
+): PageRegistryEntry[] {
+  const index = entries.findIndex(
+    (item) => item.id === entry.id || item.slug === entry.slug,
+  )
+
+  if (index === -1) {
+    return [entry, ...entries]
+  }
+
+  return entries.map((item, itemIndex) => (itemIndex === index ? entry : item))
 }
 
 function createDraftFromWebsite(website: WebsiteJSON): DraftLayout {
@@ -197,11 +296,37 @@ function createDraftFromWebsite(website: WebsiteJSON): DraftLayout {
     author: 'Admin Team',
     last_updated: nowLabel(),
     status: 'Pending Review',
-    route: website.page.startsWith('/') ? website.page : `/${website.page}`,
+    route: normalizeSlug(website.page),
     meta_description: website.meta_description,
     keywords: website.keywords ?? [],
     sections: website.sections,
   }
+}
+
+function emitMenuSync(navigationMenus: MenuNode[]): void {
+  writeStorage(STORAGE_KEYS.menus, JSON.stringify(navigationMenus))
+
+  if (typeof window !== 'undefined') {
+    window.dispatchEvent(new Event('navMenuUpdated'))
+  }
+}
+
+function createToast(
+  title: string,
+  message: string,
+  variant: ToastMessage['variant'],
+): ToastMessage {
+  return {
+    id: `toast-${Date.now()}`,
+    title,
+    message,
+    variant,
+  }
+}
+
+function nextNotificationCount(draftsPool: DraftLayout[], jsonError: string | null, toasts: ToastMessage[]): number {
+  const pendingDrafts = draftsPool.filter((draft) => draft.status === 'Pending Review').length
+  return pendingDrafts + (jsonError ? 1 : 0) + toasts.length
 }
 
 function appendToParentNode(
@@ -240,6 +365,23 @@ function appendToParentNode(
   return { nodes: nextNodes, inserted }
 }
 
+function findMenuNodeLabel(nodes: MenuNode[], targetId: string): string | null {
+  for (const node of nodes) {
+    if (node.id === targetId) {
+      return node.label
+    }
+
+    if (node.children?.length) {
+      const childLabel = findMenuNodeLabel(node.children, targetId)
+      if (childLabel) {
+        return childLabel
+      }
+    }
+  }
+
+  return null
+}
+
 interface SaveResult {
   ok: boolean
   message: string
@@ -248,6 +390,7 @@ interface SaveResult {
 interface DashboardState {
   currentRoute: AppRoute
   navigationMenus: MenuNode[]
+  pagesRegistry: PageRegistryEntry[]
   draftsPool: DraftLayout[]
   activeDraftId: string | null
   baselineDraftJSON: WebsiteJSON | null
@@ -264,12 +407,13 @@ interface DashboardState {
   role: UserRole
   activeDevice: DeviceMode
   notifications: number
+  toasts: ToastMessage[]
   initialize: () => void
   setRoute: (route: AppRoute) => void
   setActiveDraft: (pageId: string) => void
   setDraftText: (value: string) => void
   setMetadata: (
-    field: 'page' | 'title' | 'meta_description' | 'keywords',
+    field: 'title' | 'meta_description' | 'keywords',
     value: string,
   ) => void
   resetToPublished: () => void
@@ -280,18 +424,20 @@ interface DashboardState {
   signIn: (role: UserRole) => void
   signOut: () => void
   setDevice: (mode: DeviceMode) => void
+  dismissToast: (toastId: string) => void
   addMenuNode: (input: {
     label: string
     route: string
     required_role?: UserRole
     parentId?: string
     page_id?: string
-  }) => void
+  }) => SaveResult
 }
 
 export const useDashboardStore = create<DashboardState>((set, get) => ({
   currentRoute: 'home',
   navigationMenus: seedMenus,
+  pagesRegistry: seedPagesRegistry,
   draftsPool: seedDrafts,
   activeDraftId: seedDrafts[0].page_id,
   baselineDraftJSON: draftToWebsiteJSON(seedDrafts[0]),
@@ -307,10 +453,12 @@ export const useDashboardStore = create<DashboardState>((set, get) => ({
   isAuthenticated: false,
   role: 'Guest',
   activeDevice: 'desktop',
-  notifications: 2,
+  notifications: 1,
+  toasts: [],
 
   initialize: () => {
     const savedMenus = readStorage(STORAGE_KEYS.menus)
+    const savedPagesRegistry = readStorage(STORAGE_KEYS.pagesRegistry)
     const savedDrafts =
       readStorage(STORAGE_KEYS.drafts) ?? readStorage(STORAGE_KEYS.draftsLegacy)
     const savedPublishedPages = readStorage(STORAGE_KEYS.publishedPages)
@@ -323,6 +471,9 @@ export const useDashboardStore = create<DashboardState>((set, get) => ({
     const navigationMenus = savedMenus
       ? (JSON.parse(savedMenus) as MenuNode[])
       : seedMenus
+    const pagesRegistry = savedPagesRegistry
+      ? (JSON.parse(savedPagesRegistry) as PageRegistryEntry[])
+      : seedPagesRegistry
     const draftsPool = savedDrafts ? (JSON.parse(savedDrafts) as DraftLayout[]) : seedDrafts
     const publishedPages = savedPublishedPages
       ? (JSON.parse(savedPublishedPages) as Record<string, WebsiteJSON>)
@@ -359,6 +510,7 @@ export const useDashboardStore = create<DashboardState>((set, get) => ({
 
     set(() => ({
       navigationMenus,
+      pagesRegistry,
       draftsPool: [...draftsPool],
       activeDraftId: selectedDraftId,
       baselineDraftJSON,
@@ -371,7 +523,7 @@ export const useDashboardStore = create<DashboardState>((set, get) => ({
       lastSavedAt: savedLastSaved ?? 'Not saved yet',
       lastPublishedAt: savedLastPublished ?? 'Not published in this session',
       auditLog,
-      notifications: isDirty ? 4 : 2,
+      notifications: nextNotificationCount(draftsPool, jsonError, []),
     }))
   },
 
@@ -397,6 +549,7 @@ export const useDashboardStore = create<DashboardState>((set, get) => ({
       draftText: pretty(targetJSON),
       jsonError: null,
       isDirty: false,
+      notifications: nextNotificationCount(state.draftsPool, null, state.toasts),
     })
   },
 
@@ -417,7 +570,7 @@ export const useDashboardStore = create<DashboardState>((set, get) => ({
       draftJSON: nextDraft,
       jsonError: parsed.error,
       isDirty,
-      notifications: parsed.error ? 6 : isDirty ? 4 : 2,
+      notifications: nextNotificationCount(state.draftsPool, parsed.error, state.toasts),
     })
   },
 
@@ -454,7 +607,7 @@ export const useDashboardStore = create<DashboardState>((set, get) => ({
       draftText: nextText,
       jsonError: null,
       isDirty,
-      notifications: isDirty ? 4 : 2,
+      notifications: nextNotificationCount(state.draftsPool, null, state.toasts),
     })
   },
 
@@ -474,6 +627,11 @@ export const useDashboardStore = create<DashboardState>((set, get) => ({
     }
 
     const nextAudit = addAuditEntry(state.auditLog, `Draft reset for ${activeDraft.title}`)
+    const nextToast = createToast(
+      'Draft Restored',
+      `Reset ${activeDraft.title} to the published baseline.`,
+      'info',
+    )
 
     writeStorage(STORAGE_KEYS.draftText, pretty(nextDraft))
     writeStorage(STORAGE_KEYS.auditLog, JSON.stringify(nextAudit))
@@ -484,7 +642,8 @@ export const useDashboardStore = create<DashboardState>((set, get) => ({
       jsonError: null,
       isDirty: false,
       auditLog: nextAudit,
-      notifications: 2,
+      toasts: [nextToast, ...state.toasts].slice(0, 4),
+      notifications: nextNotificationCount(state.draftsPool, null, [nextToast, ...state.toasts].slice(0, 4)),
     })
   },
 
@@ -492,43 +651,52 @@ export const useDashboardStore = create<DashboardState>((set, get) => ({
     const state = get()
 
     if (state.role !== 'Admin') {
+      const nextToast = createToast('Permission Denied', 'Only Admin users can save to the drafts hub.', 'error')
+      set({
+        toasts: [nextToast, ...state.toasts].slice(0, 4),
+        notifications: nextNotificationCount(state.draftsPool, state.jsonError, [nextToast, ...state.toasts].slice(0, 4)),
+      })
       return { ok: false, message: 'Only Admin users can save to the drafts hub.' }
     }
 
     if (state.jsonError || !state.draftJSON || !state.activeDraftId) {
+      const nextToast = createToast(
+        'Invalid Draft',
+        state.jsonError ?? 'JSON schema validation failed.',
+        'error',
+      )
+      set({
+        toasts: [nextToast, ...state.toasts].slice(0, 4),
+        notifications: nextNotificationCount(state.draftsPool, state.jsonError, [nextToast, ...state.toasts].slice(0, 4)),
+      })
       return {
         ok: false,
         message: `Draft is invalid: ${state.jsonError ?? 'JSON schema validation failed.'}`,
       }
     }
 
-    const target = state.draftsPool.find((draft) => draft.page_id === state.activeDraftId)
-    const matchedByRoute = state.draftsPool.find(
-      (draft) => draft.route === (state.draftJSON?.page.startsWith('/') ? state.draftJSON.page : `/${state.draftJSON?.page}`),
+    const updated = createDraftFromWebsite(state.draftJSON)
+    const draftsPool = [{ ...updated }, ...state.draftsPool]
+
+    const pagesRegistry = upsertRegistryEntry(state.pagesRegistry, draftToRegistryEntry(updated))
+    const nextToast = createToast(
+      'Draft Saved',
+      `${updated.title} stored in the staging hub as version ${updated.page_id}.`,
+      'success',
     )
-
-    const targetForUpdate = target ?? matchedByRoute
-    const updated = targetForUpdate
-      ? websiteToDraft(state.draftJSON, targetForUpdate, 'Pending Review')
-      : createDraftFromWebsite(state.draftJSON)
-
-    const hasExisting = state.draftsPool.some((draft) => draft.page_id === updated.page_id)
-    const draftsPool = hasExisting
-      ? state.draftsPool.map((draft) =>
-          draft.page_id === updated.page_id ? { ...updated } : draft,
-        )
-      : [{ ...updated }, ...state.draftsPool]
 
     const nextAudit = addAuditEntry(
       state.auditLog,
-      `Saved ${updated.title} to Staging & Drafts Hub`,
+      `Saved ${updated.title} to Staging & Drafts Hub as ${updated.page_id}`,
     )
 
     writeStorage(STORAGE_KEYS.drafts, JSON.stringify(draftsPool))
+    writeStorage(STORAGE_KEYS.pagesRegistry, JSON.stringify(pagesRegistry))
     writeStorage(STORAGE_KEYS.lastSaved, updated.last_updated)
     writeStorage(STORAGE_KEYS.auditLog, JSON.stringify(nextAudit))
 
     set(() => ({
+      pagesRegistry,
       draftsPool: [...draftsPool],
       activeDraftId: updated.page_id,
       baselineDraftJSON: draftToWebsiteJSON(updated),
@@ -537,20 +705,35 @@ export const useDashboardStore = create<DashboardState>((set, get) => ({
       isDirty: false,
       lastSavedAt: updated.last_updated,
       auditLog: nextAudit,
-      notifications: 2,
+      toasts: [nextToast, ...state.toasts].slice(0, 4),
+      notifications: nextNotificationCount(draftsPool, null, [nextToast, ...state.toasts].slice(0, 4)),
     }))
 
-    return { ok: true, message: 'Draft stored in Staging & Drafts Hub.' }
+    return { ok: true, message: 'Draft stored in Staging & Drafts Hub as a new version.' }
   },
 
   saveAsNewDraft: () => {
     const state = get()
 
     if (state.role !== 'Admin') {
+      const nextToast = createToast('Permission Denied', 'Only Admin users can create a new draft copy.', 'error')
+      set({
+        toasts: [nextToast, ...state.toasts].slice(0, 4),
+        notifications: nextNotificationCount(state.draftsPool, state.jsonError, [nextToast, ...state.toasts].slice(0, 4)),
+      })
       return { ok: false, message: 'Only Admin users can create a new draft copy.' }
     }
 
     if (state.jsonError || !state.draftJSON) {
+      const nextToast = createToast(
+        'Invalid Draft',
+        state.jsonError ?? 'JSON schema validation failed.',
+        'error',
+      )
+      set({
+        toasts: [nextToast, ...state.toasts].slice(0, 4),
+        notifications: nextNotificationCount(state.draftsPool, state.jsonError, [nextToast, ...state.toasts].slice(0, 4)),
+      })
       return {
         ok: false,
         message: `Draft is invalid: ${state.jsonError ?? 'JSON schema validation failed.'}`,
@@ -558,6 +741,12 @@ export const useDashboardStore = create<DashboardState>((set, get) => ({
     }
 
     const newDraft = createDraftFromWebsite(state.draftJSON)
+    const pagesRegistry = upsertRegistryEntry(state.pagesRegistry, draftToRegistryEntry(newDraft))
+    const nextToast = createToast(
+      'Draft Cloned',
+      `${newDraft.title} was added as a new staged version.`,
+      'success',
+    )
     const nextAudit = addAuditEntry(
       state.auditLog,
       `Saved new draft copy ${newDraft.title} (${newDraft.page_id})`,
@@ -567,12 +756,14 @@ export const useDashboardStore = create<DashboardState>((set, get) => ({
       STORAGE_KEYS.drafts,
       JSON.stringify([newDraft, ...state.draftsPool]),
     )
+    writeStorage(STORAGE_KEYS.pagesRegistry, JSON.stringify(pagesRegistry))
     writeStorage(STORAGE_KEYS.activeDraftId, newDraft.page_id)
     writeStorage(STORAGE_KEYS.draftText, pretty(draftToWebsiteJSON(newDraft)))
     writeStorage(STORAGE_KEYS.lastSaved, newDraft.last_updated)
     writeStorage(STORAGE_KEYS.auditLog, JSON.stringify(nextAudit))
 
     set((prev) => ({
+      pagesRegistry,
       draftsPool: [newDraft, ...prev.draftsPool],
       activeDraftId: newDraft.page_id,
       baselineDraftJSON: draftToWebsiteJSON(newDraft),
@@ -581,7 +772,8 @@ export const useDashboardStore = create<DashboardState>((set, get) => ({
       isDirty: false,
       lastSavedAt: newDraft.last_updated,
       auditLog: nextAudit,
-      notifications: 2,
+      toasts: [nextToast, ...prev.toasts].slice(0, 4),
+      notifications: nextNotificationCount([newDraft, ...prev.draftsPool], null, [nextToast, ...prev.toasts].slice(0, 4)),
     }))
 
     return { ok: true, message: 'New draft copy created and added to Staging & Drafts Hub.' }
@@ -636,10 +828,24 @@ export const useDashboardStore = create<DashboardState>((set, get) => ({
     const state = get()
 
     if (state.role !== 'Admin') {
+      const nextToast = createToast('Permission Denied', 'Only Admin users can approve and publish live.', 'error')
+      set({
+        toasts: [nextToast, ...state.toasts].slice(0, 4),
+        notifications: nextNotificationCount(state.draftsPool, state.jsonError, [nextToast, ...state.toasts].slice(0, 4)),
+      })
       return { ok: false, message: 'Only Admin users can approve and publish live.' }
     }
 
     if (state.jsonError || !state.draftJSON || !state.activeDraftId) {
+      const nextToast = createToast(
+        'Publish Blocked',
+        state.jsonError ?? 'Validation failed.',
+        'error',
+      )
+      set({
+        toasts: [nextToast, ...state.toasts].slice(0, 4),
+        notifications: nextNotificationCount(state.draftsPool, state.jsonError, [nextToast, ...state.toasts].slice(0, 4)),
+      })
       return {
         ok: false,
         message: `Cannot publish invalid draft: ${state.jsonError ?? 'Validation failed.'}`,
@@ -660,17 +866,28 @@ export const useDashboardStore = create<DashboardState>((set, get) => ({
       ...state.publishedPages,
       [updatedDraft.route]: state.draftJSON,
     }
+    const pagesRegistry = upsertRegistryEntry(
+      state.pagesRegistry,
+      websiteToRegistryEntry(state.draftJSON, updatedDraft.page_id),
+    )
 
     const publishedAt = nowLabel()
     const nextAudit = addAuditEntry(state.auditLog, `Published ${updatedDraft.title} live`)
+    const nextToast = createToast(
+      'Published Live',
+      `${updatedDraft.title} is now active at ${updatedDraft.route}.`,
+      'success',
+    )
 
     writeStorage(STORAGE_KEYS.drafts, JSON.stringify(draftsPool))
+    writeStorage(STORAGE_KEYS.pagesRegistry, JSON.stringify(pagesRegistry))
     writeStorage(STORAGE_KEYS.publishedPages, JSON.stringify(publishedPages))
     writeStorage(STORAGE_KEYS.lastSaved, publishedAt)
     writeStorage(STORAGE_KEYS.lastPublished, publishedAt)
     writeStorage(STORAGE_KEYS.auditLog, JSON.stringify(nextAudit))
 
     set({
+      pagesRegistry,
       draftsPool,
       baselineDraftJSON: state.draftJSON,
       isDirty: false,
@@ -679,31 +896,79 @@ export const useDashboardStore = create<DashboardState>((set, get) => ({
       lastSavedAt: publishedAt,
       lastPublishedAt: publishedAt,
       auditLog: nextAudit,
-      notifications: 1,
+      toasts: [nextToast, ...state.toasts].slice(0, 4),
+      notifications: nextNotificationCount(draftsPool, null, [nextToast, ...state.toasts].slice(0, 4)),
     })
 
     return { ok: true, message: 'Draft approved and merged into live routing.' }
   },
 
   signIn: (role) => {
-    set({ isAuthenticated: role !== 'Guest', role })
+    set((state) => {
+      const nextToasts =
+        role === 'Guest'
+          ? state.toasts
+          : [createToast('Workspace Access Granted', `Signed in as ${role}.`, 'success'), ...state.toasts].slice(0, 4)
+
+      return {
+        isAuthenticated: role !== 'Guest',
+        role,
+        toasts: nextToasts,
+        notifications: nextNotificationCount(state.draftsPool, state.jsonError, nextToasts),
+      }
+    })
   },
 
   signOut: () => {
-    set({ isAuthenticated: false, role: 'Guest', currentRoute: 'home' })
+    set((state) => {
+      const nextToasts = [createToast('Session Closed', 'Admin session ended and the public site is active.', 'info'), ...state.toasts].slice(0, 4)
+
+      return {
+        isAuthenticated: false,
+        role: 'Guest',
+        currentRoute: 'home',
+        activeDevice: 'desktop',
+        toasts: nextToasts,
+        notifications: nextNotificationCount(state.draftsPool, state.jsonError, nextToasts),
+      }
+    })
   },
 
   setDevice: (mode) => {
     set({ activeDevice: mode })
   },
 
+  dismissToast: (toastId) => {
+    set((state) => {
+      const toasts = state.toasts.filter((toast) => toast.id !== toastId)
+      return {
+        toasts,
+        notifications: nextNotificationCount(state.draftsPool, state.jsonError, toasts),
+      }
+    })
+  },
+
   addMenuNode: ({ label, route, required_role, parentId, page_id }) => {
     const state = get()
     if (state.role !== 'Admin') {
-      return
+      const nextToast = createToast('Permission Denied', 'Only Admin users can change navigation.', 'error')
+      set({
+        toasts: [nextToast, ...state.toasts].slice(0, 4),
+        notifications: nextNotificationCount(state.draftsPool, state.jsonError, [nextToast, ...state.toasts].slice(0, 4)),
+      })
+      return { ok: false, message: 'Only Admin users can change navigation.' }
     }
 
-    const sanitizedRoute = route.startsWith('/') ? route : `/${route}`
+    if (!label.trim() || !route.trim()) {
+      const nextToast = createToast('Missing Fields', 'Node label and page source are required.', 'error')
+      set({
+        toasts: [nextToast, ...state.toasts].slice(0, 4),
+        notifications: nextNotificationCount(state.draftsPool, state.jsonError, [nextToast, ...state.toasts].slice(0, 4)),
+      })
+      return { ok: false, message: 'Node label and page source are required.' }
+    }
+
+    const sanitizedRoute = normalizeSlug(route)
     const node: MenuNode = {
       id: `m-${Date.now()}`,
       label,
@@ -735,25 +1000,44 @@ export const useDashboardStore = create<DashboardState>((set, get) => ({
         )
       : state.draftsPool
 
+    const pagesRegistry = page_id
+      ? state.pagesRegistry.map((entry) =>
+          entry.id === page_id
+            ? {
+                ...entry,
+                slug: sanitizedRoute,
+              }
+            : entry,
+        )
+      : state.pagesRegistry
+
     const nextAudit = addAuditEntry(
       state.auditLog,
       `Added navigation node ${label} (${sanitizedRoute})`,
     )
+    const parentLabel = parentId
+      ? findMenuNodeLabel(state.navigationMenus, parentId) ?? 'Top Level'
+      : 'Top Level'
+    const nextToast = createToast(
+      'Navigation Updated',
+      `Node '${label}' successfully appended to Parent '${parentLabel}'.`,
+      'success',
+    )
 
-    writeStorage(STORAGE_KEYS.menus, JSON.stringify(navigationMenus))
     writeStorage(STORAGE_KEYS.drafts, JSON.stringify(draftsPool))
+    writeStorage(STORAGE_KEYS.pagesRegistry, JSON.stringify(pagesRegistry))
     writeStorage(STORAGE_KEYS.auditLog, JSON.stringify(nextAudit))
-
-    if (typeof window !== 'undefined') {
-      window.localStorage.setItem(STORAGE_KEYS.menus, JSON.stringify(navigationMenus))
-      window.dispatchEvent(new Event('navMenuUpdated'))
-    }
+    emitMenuSync(navigationMenus)
 
     set(() => ({
       navigationMenus: [...navigationMenus],
+      pagesRegistry: [...pagesRegistry],
       draftsPool: [...draftsPool],
       auditLog: nextAudit,
-      notifications: 3,
+      toasts: [nextToast, ...state.toasts].slice(0, 4),
+      notifications: nextNotificationCount(draftsPool, state.jsonError, [nextToast, ...state.toasts].slice(0, 4)),
     }))
+
+    return { ok: true, message: `Node '${label}' successfully appended to Parent '${parentLabel}'.` }
   },
 }))

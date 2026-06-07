@@ -1,8 +1,13 @@
 import {
   SECTION_WHITELIST,
+  type AccordionSection,
+  type CTASection,
+  type CardGridSection,
   type FeatureGridSection,
   type HeroSection,
+  type LayoutGridSection,
   type TestimonialSection,
+  type SliderSection,
   type ValidationResult,
   type WebsiteJSON,
 } from '../types/schema'
@@ -67,6 +72,119 @@ function validateTestimonials(
     Number.isFinite(section.rating) &&
     section.rating >= 1 &&
     section.rating <= 5
+  )
+}
+
+function validateLayoutGrid(section: unknown): section is LayoutGridSection {
+  if (!isRecord(section)) {
+    return false
+  }
+
+  if (
+    section.type !== 'LayoutGrid' ||
+    !isNonEmptyString(section.id) ||
+    !isNonEmptyString(section.title) ||
+    !isNonEmptyString(section.subtitle) ||
+    typeof section.columns !== 'number' ||
+    ![2, 3, 4].includes(section.columns) ||
+    !Array.isArray(section.items)
+  ) {
+    return false
+  }
+
+  return section.items.every((item) => {
+    if (!isRecord(item)) {
+      return false
+    }
+
+    return isNonEmptyString(item.title) && isNonEmptyString(item.body)
+  })
+}
+
+function validateCardGrid(section: unknown): section is CardGridSection {
+  if (!isRecord(section)) {
+    return false
+  }
+
+  if (
+    section.type !== 'CardGrid' ||
+    !isNonEmptyString(section.id) ||
+    !isNonEmptyString(section.title) ||
+    !isNonEmptyString(section.subtitle) ||
+    !Array.isArray(section.cards)
+  ) {
+    return false
+  }
+
+  return section.cards.every((card) => {
+    if (!isRecord(card)) {
+      return false
+    }
+
+    return isNonEmptyString(card.title) && isNonEmptyString(card.desc)
+  })
+}
+
+function validateAccordion(section: unknown): section is AccordionSection {
+  if (!isRecord(section)) {
+    return false
+  }
+
+  if (
+    section.type !== 'Accordion' ||
+    !isNonEmptyString(section.id) ||
+    !isNonEmptyString(section.title) ||
+    !isNonEmptyString(section.subtitle) ||
+    !Array.isArray(section.items)
+  ) {
+    return false
+  }
+
+  return section.items.every((item) => {
+    if (!isRecord(item)) {
+      return false
+    }
+
+    return isNonEmptyString(item.title) && isNonEmptyString(item.content)
+  })
+}
+
+function validateSlider(section: unknown): section is SliderSection {
+  if (!isRecord(section)) {
+    return false
+  }
+
+  if (
+    section.type !== 'Slider' ||
+    !isNonEmptyString(section.id) ||
+    !isNonEmptyString(section.title) ||
+    !isNonEmptyString(section.subtitle) ||
+    !Array.isArray(section.slides)
+  ) {
+    return false
+  }
+
+  return section.slides.every((slide) => {
+    if (!isRecord(slide)) {
+      return false
+    }
+
+    return isNonEmptyString(slide.title) && isNonEmptyString(slide.caption)
+  })
+}
+
+function validateCTA(section: unknown): section is CTASection {
+  if (!isRecord(section)) {
+    return false
+  }
+
+  return (
+    section.type === 'CTA' &&
+    isNonEmptyString(section.id) &&
+    isNonEmptyString(section.title) &&
+    isNonEmptyString(section.subtitle) &&
+    isNonEmptyString(section.primaryCTA) &&
+    isNonEmptyString(section.secondaryCTA)
   )
 }
 
@@ -137,6 +255,26 @@ export function validateWebsiteJSON(input: unknown): ValidationResult {
         valid: false,
         error: 'Testimonials section must include text and rating (1-5).',
       }
+    }
+
+    if (sectionType === 'LayoutGrid' && !validateLayoutGrid(section)) {
+      return { valid: false, error: 'LayoutGrid section has invalid layout items.' }
+    }
+
+    if (sectionType === 'CardGrid' && !validateCardGrid(section)) {
+      return { valid: false, error: 'CardGrid section has invalid card data.' }
+    }
+
+    if (sectionType === 'Accordion' && !validateAccordion(section)) {
+      return { valid: false, error: 'Accordion section has invalid item content.' }
+    }
+
+    if (sectionType === 'Slider' && !validateSlider(section)) {
+      return { valid: false, error: 'Slider section has invalid slide content.' }
+    }
+
+    if (sectionType === 'CTA' && !validateCTA(section)) {
+      return { valid: false, error: 'CTA section is missing required copy.' }
     }
   }
 

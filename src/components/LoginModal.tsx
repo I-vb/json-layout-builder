@@ -23,8 +23,8 @@ export function LoginModal() {
         </div>
 
         <p className="mb-6 text-sm text-slate-600">
-          Sign in to review JSON-driven content safely. Only Admin users can edit
-          and publish ApexConsulting changes.
+          Sign in to manage JSON-driven content safely. Only Admin users can edit,
+          map registry pages into navigation, and publish live SaaSLaunch changes.
         </p>
 
         <div className="space-y-3">
