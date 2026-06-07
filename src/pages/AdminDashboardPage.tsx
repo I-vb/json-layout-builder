@@ -6,12 +6,38 @@ import { StagingDraftsHub } from '../components/StagingDraftsHub'
 
 export function AdminDashboardPage() {
   return (
-    <main className="min-h-screen bg-[radial-gradient(circle_at_15%_15%,_#0e253e,_transparent_38%),radial-gradient(circle_at_85%_0%,_#123870,_transparent_45%),linear-gradient(180deg,_#09101b,_#0b1420)] px-4 py-4 lg:px-6 lg:py-6">
+    <main className="min-h-[calc(100vh-6rem)] px-4 py-4 lg:px-6 lg:py-6">
       <div className="mx-auto w-full max-w-[1800px] space-y-4">
+        <section className="grid gap-4 xl:grid-cols-[1.2fr_0.8fr]">
+          <article className="rounded-[2rem] border border-cyan-400/20 bg-[linear-gradient(135deg,_rgba(34,211,238,0.16),_rgba(15,23,42,0.9))] p-6 shadow-xl shadow-slate-950/25">
+            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-cyan-100/70">
+              SaaSLaunch Workspace
+            </p>
+            <h1 className="mt-2 font-display text-4xl font-bold text-white">
+              Secure JSON Layout Builder
+            </h1>
+            <p className="mt-3 max-w-3xl text-sm text-slate-200">
+              A synchronized admin layer for registry-managed pages, recursive navigation trees, and production-safe publishing workflows.
+            </p>
+          </article>
+
+          <div className="grid gap-4 md:grid-cols-3 xl:grid-cols-1">
+            <div className="rounded-[1.5rem] border border-slate-800 bg-slate-950/65 p-4 text-sm text-slate-200">
+              Column 1: Monaco-style JSON authoring with validation and rollback.
+            </div>
+            <div className="rounded-[1.5rem] border border-slate-800 bg-slate-950/65 p-4 text-sm text-slate-200">
+              Column 2: Error-bound staging canvas across device breakpoints.
+            </div>
+            <div className="rounded-[1.5rem] border border-slate-800 bg-slate-950/65 p-4 text-sm text-slate-200">
+              Column 3: Draft saving, diff review, and live publish controls.
+            </div>
+          </div>
+        </section>
+
         <StagingDraftsHub />
         <NavigationMenuManager />
 
-        <div className="rounded-2xl border border-slate-800 bg-slate-950/50 p-4">
+        <div className="rounded-[2rem] border border-slate-800 bg-slate-950/55 p-4 shadow-xl shadow-slate-950/25">
           <p className="mb-4 text-xs font-semibold uppercase tracking-[0.16em] text-slate-400">
             Secure JSON Layout Builder
           </p>
@@ -25,14 +51,6 @@ export function AdminDashboardPage() {
             <div className="xl:col-span-3">
               <ControlPanel />
             </div>
-          </div>
-        </div>
-      </div>
-
-      <div className="mx-auto mt-4 grid w-full max-w-[1800px] grid-cols-1 gap-4 xl:grid-cols-12">
-        <div className="xl:col-span-3">
-          <div className="rounded-xl border border-slate-800 bg-slate-900/50 p-3 text-xs text-slate-300">
-            Access: Admin-only workspace with XSS sanitation and schema guardrails.
           </div>
         </div>
       </div>

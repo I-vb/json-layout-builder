@@ -1,4 +1,13 @@
-export const SECTION_WHITELIST = ['Hero', 'FeatureGrid', 'Testimonials'] as const
+export const SECTION_WHITELIST = [
+  'Hero',
+  'FeatureGrid',
+  'Testimonials',
+  'LayoutGrid',
+  'CardGrid',
+  'Accordion',
+  'Slider',
+  'CTA',
+] as const
 
 export type SectionType = (typeof SECTION_WHITELIST)[number]
 
@@ -29,13 +38,94 @@ export interface TestimonialSection {
   rating: number
 }
 
-export type PageSection = HeroSection | FeatureGridSection | TestimonialSection
+export interface LayoutGridItem {
+  title: string
+  body: string
+  eyebrow?: string
+}
+
+export interface LayoutGridSection {
+  type: 'LayoutGrid'
+  id: string
+  title: string
+  subtitle: string
+  columns: 2 | 3 | 4
+  items: LayoutGridItem[]
+}
+
+export interface CardGridItem {
+  title: string
+  desc: string
+  meta?: string
+}
+
+export interface CardGridSection {
+  type: 'CardGrid'
+  id: string
+  title: string
+  subtitle: string
+  cards: CardGridItem[]
+}
+
+export interface AccordionItem {
+  title: string
+  content: string
+  defaultOpen?: boolean
+}
+
+export interface AccordionSection {
+  type: 'Accordion'
+  id: string
+  title: string
+  subtitle: string
+  items: AccordionItem[]
+}
+
+export interface SliderItem {
+  title: string
+  caption: string
+  metric?: string
+}
+
+export interface SliderSection {
+  type: 'Slider'
+  id: string
+  title: string
+  subtitle: string
+  slides: SliderItem[]
+}
+
+export interface CTASection {
+  type: 'CTA'
+  id: string
+  title: string
+  subtitle: string
+  primaryCTA: string
+  secondaryCTA: string
+}
+
+export type PageSection =
+  | HeroSection
+  | FeatureGridSection
+  | TestimonialSection
+  | LayoutGridSection
+  | CardGridSection
+  | AccordionSection
+  | SliderSection
+  | CTASection
 
 export interface WebsiteJSON {
   page: string
   title: string
   meta_description: string
   keywords?: string[]
+  sections: PageSection[]
+}
+
+export interface PageRegistryEntry {
+  id: string
+  title: string
+  slug: string
   sections: PageSection[]
 }
 
@@ -55,6 +145,13 @@ export interface MenuNode {
   required_role?: UserRole
   page_id?: string
   children?: MenuNode[]
+}
+
+export interface ToastMessage {
+  id: string
+  title: string
+  message: string
+  variant: 'success' | 'error' | 'info'
 }
 
 export type DraftStatus = 'Pending Review' | 'Approved'

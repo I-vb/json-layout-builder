@@ -19,7 +19,7 @@ export function JsonEditorPane() {
       <div className="mb-3 flex items-center justify-between">
         <div>
           <p className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">
-            JSON Layout Editor
+            Column 1 · JSON Layout Editor
           </p>
           <h2 className="font-display text-xl font-bold text-slate-100">
             {activeDraft?.title ?? 'Select Draft from Staging Hub'}
@@ -36,7 +36,7 @@ export function JsonEditorPane() {
         </button>
       </div>
 
-      <div className="flex min-h-[520px] flex-1 overflow-hidden rounded-2xl border border-slate-800 bg-slate-950/95">
+      <div className="flex min-h-[560px] flex-1 overflow-hidden rounded-2xl border border-slate-800 bg-slate-950/95 shadow-inner shadow-black/30">
         <pre className="w-12 overflow-hidden border-r border-slate-800 px-2 py-3 text-right text-xs leading-6 text-slate-500">
           {Array.from({ length: lineCount }, (_, index) => index + 1).join('\n')}
         </pre>
@@ -59,7 +59,7 @@ export function JsonEditorPane() {
         {jsonError ? <AlertCircle className="h-4 w-4" /> : <CheckCircle2 className="h-4 w-4" />}
         {jsonError
           ? `JSON Syntax: Error - ${jsonError}`
-          : 'JSON Syntax: Valid'}
+          : 'JSON Syntax: Valid (Green Glow)'}
       </div>
     </section>
   )

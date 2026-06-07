@@ -7,13 +7,13 @@ export function AdminAuthWall() {
 
   return (
     <div className="mx-auto flex min-h-[65vh] w-full max-w-[1000px] items-center justify-center px-4 py-12">
-      <section className="w-full max-w-lg rounded-3xl border border-slate-200 bg-white p-8 text-center shadow-lg">
+      <section className="w-full max-w-lg rounded-3xl border border-slate-200 bg-white/90 p-8 text-center shadow-lg backdrop-blur-sm">
         <div className="mx-auto inline-flex rounded-2xl bg-blue-100 p-3 text-blue-700">
           <Lock className="h-6 w-6" />
         </div>
         <h2 className="mt-5 font-display text-3xl font-bold text-slate-900">Admin Access Required</h2>
         <p className="mt-3 text-sm text-slate-600">
-          This workspace is restricted to Admin users for secure publishing workflows.
+          The SaaSLaunch workspace is restricted to Admin users for synchronized registry, navigation, and publishing workflows.
         </p>
         <button
           type="button"

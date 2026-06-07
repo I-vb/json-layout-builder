@@ -6,16 +6,21 @@ import { useDashboardStore } from '../store/useDashboardStore'
 export function StagingDraftsHub() {
   const navigate = useNavigate()
   const draftsPool = useDashboardStore((state) => state.draftsPool)
+  const activeDraftId = useDashboardStore((state) => state.activeDraftId)
+  const pagesRegistry = useDashboardStore((state) => state.pagesRegistry)
   const setActiveDraft = useDashboardStore((state) => state.setActiveDraft)
 
   return (
-    <section className="rounded-2xl border border-slate-700 bg-slate-900/80 p-4 shadow-lg">
+    <section className="rounded-[1.75rem] border border-slate-700 bg-slate-900/80 p-4 shadow-lg shadow-slate-950/20">
       <div className="mb-3 flex items-center justify-between">
         <div>
           <p className="text-xs font-semibold uppercase tracking-[0.16em] text-slate-400">
             Staging & Drafts Hub
           </p>
           <h3 className="font-display text-xl font-bold text-white">Build Queue</h3>
+          <p className="mt-2 text-sm text-slate-300">
+            Registry pages: {pagesRegistry.length} · Draft versions: {draftsPool.length}
+          </p>
         </div>
       </div>
 
@@ -27,13 +32,19 @@ export function StagingDraftsHub() {
               <th className="px-3 py-3">Last Modified</th>
               <th className="px-3 py-3">Author</th>
               <th className="px-3 py-3">Build Status</th>
+              <th className="px-3 py-3">Route</th>
               <th className="px-3 py-3">Components</th>
               <th className="px-3 py-3">Actions</th>
             </tr>
           </thead>
           <tbody>
             {draftsPool.map((draft) => (
-              <tr key={draft.page_id} className="border-t border-slate-800 bg-slate-900/50">
+              <tr
+                key={draft.page_id}
+                className={`border-t border-slate-800 ${
+                  draft.page_id === activeDraftId ? 'bg-cyan-500/8' : 'bg-slate-900/50'
+                }`}
+              >
                 <td className="px-3 py-3 font-semibold text-white">{draft.title}</td>
                 <td className="px-3 py-3">{draft.last_updated}</td>
                 <td className="px-3 py-3">{draft.author}</td>
@@ -48,6 +59,7 @@ export function StagingDraftsHub() {
                     {draft.status}
                   </span>
                 </td>
+                <td className="px-3 py-3 text-slate-300">{draft.route}</td>
                 <td className="px-3 py-3">{draft.sections.length}</td>
                 <td className="px-3 py-3">
                   <button

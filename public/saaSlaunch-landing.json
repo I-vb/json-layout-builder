@@ -1,0 +1,139 @@
+{
+  "page": "/",
+  "title": "SaaSLaunch - Enterprise CMS Landing Page",
+  "meta_description": "A full object-based JSON page definition that drives an 8-section HTML layout with reusable TypeScript components.",
+  "keywords": ["SaaSLaunch", "CMS", "TypeScript", "React", "Layout Grid", "Accordion", "Slider"],
+  "sections": [
+    {
+      "type": "Hero",
+      "id": "hero-main",
+      "title": "Enterprise Content Infrastructure for Modern Teams",
+      "subtitle": "Build public marketing pages, secure admin workspaces, and live JSON-driven publishing workflows from one synchronized model.",
+      "primaryCTA": "Get Started",
+      "secondaryCTA": "View Demo"
+    },
+    {
+      "type": "LayoutGrid",
+      "id": "layout-grid-01",
+      "title": "Operating Model",
+      "subtitle": "A 3-column layout grid that organizes strategy, delivery, and governance into one visible structure.",
+      "columns": 3,
+      "items": [
+        {
+          "eyebrow": "Strategy",
+          "title": "Public Experience",
+          "body": "Reusable corporate pages for home, services, and case studies with route-safe JSON data."
+        },
+        {
+          "eyebrow": "Delivery",
+          "title": "Secure Admin Workspace",
+          "body": "A guarded builder layer for editing drafts, staging content, and approving live updates."
+        },
+        {
+          "eyebrow": "Governance",
+          "title": "Registry Sync",
+          "body": "Every page and navigation node can be mapped through a shared, object-based registry."
+        }
+      ]
+    },
+    {
+      "type": "CardGrid",
+      "id": "card-grid-01",
+      "title": "Core Capabilities",
+      "subtitle": "Card-based modules that showcase the system building blocks.",
+      "cards": [
+        {
+          "title": "Reusable Page Registry",
+          "desc": "A centralized list of live and drafted pages aligned to route slugs and section payloads.",
+          "meta": "Registry"
+        },
+        {
+          "title": "Recursive Navigation Tree",
+          "desc": "Nested menu nodes can append children at any depth without breaking synchronization.",
+          "meta": "Navigation"
+        },
+        {
+          "title": "Safe JSON Rendering",
+          "desc": "TypeScript components render structured content without using dangerous raw HTML injection.",
+          "meta": "Security"
+        }
+      ]
+    },
+    {
+      "type": "Accordion",
+      "id": "accordion-01",
+      "title": "Implementation Notes",
+      "subtitle": "Expandable answers for common CMS workflow questions.",
+      "items": [
+        {
+          "title": "How is the JSON aligned to components?",
+          "content": "Each section object maps directly to a TypeScript section interface, so the renderer can safely convert it into the correct UI block.",
+          "defaultOpen": true
+        },
+        {
+          "title": "Can the navigation update live?",
+          "content": "Yes. New tree nodes are stored in localStorage and broadcast through a custom navMenuUpdated event for instant sync."
+        },
+        {
+          "title": "Is this safe from raw HTML injection?",
+          "content": "The renderer only reads whitelisted object properties and sanitizes text before display."
+        }
+      ]
+    },
+    {
+      "type": "Slider",
+      "id": "slider-01",
+      "title": "Delivery Highlights",
+      "subtitle": "A simple slider-style carousel section represented as a JSON slide collection.",
+      "slides": [
+        {
+          "metric": "01",
+          "title": "One Source of Truth",
+          "caption": "Registry, menu tree, drafts, and published pages remain in sync across the app."
+        },
+        {
+          "metric": "02",
+          "title": "Three-Column Builder",
+          "caption": "Editor, preview, and workflow operations sit side by side for faster publishing."
+        },
+        {
+          "metric": "03",
+          "title": "Real-Time Feedback",
+          "caption": "Toast notifications and status states make each save or publish action explicit."
+        }
+      ]
+    },
+    {
+      "type": "FeatureGrid",
+      "id": "feature-grid-01",
+      "features": [
+        {
+          "title": "Cloud Migration",
+          "desc": "Secure modernisation pipelines for enterprise systems."
+        },
+        {
+          "title": "Cyber Defense",
+          "desc": "Operational security controls for high-trust publishing workflows."
+        },
+        {
+          "title": "Data Activation",
+          "desc": "Transform operational content into measurable growth systems."
+        }
+      ]
+    },
+    {
+      "type": "Testimonials",
+      "id": "testimonials-01",
+      "text": "The unified JSON model makes it easy for marketing, engineering, and operations to work from the same page structure.",
+      "rating": 5
+    },
+    {
+      "type": "CTA",
+      "id": "cta-01",
+      "title": "Ready to launch the new content system?",
+      "subtitle": "Use this JSON page as the canonical source for the TypeScript-rendered SaaSLaunch experience.",
+      "primaryCTA": "Start Building",
+      "secondaryCTA": "Review Schema"
+    }
+  ]
+}

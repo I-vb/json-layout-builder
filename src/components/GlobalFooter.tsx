@@ -1,25 +1,33 @@
 import { BadgeCheck, Globe, LockKeyhole, Mail, ShieldCheck } from 'lucide-react'
+import { Link } from 'react-router-dom'
+import { canAccessRole, useDashboardStore } from '../store/useDashboardStore'
 
 export function GlobalFooter() {
+  const navigationMenus = useDashboardStore((state) => state.navigationMenus)
+  const guestLinks = navigationMenus.filter((node) => canAccessRole('Guest', node.required_role))
+
   return (
-    <footer className="border-t border-slate-200 bg-slate-950 text-slate-200">
-      <div className="mx-auto grid w-full max-w-[1300px] grid-cols-1 gap-8 px-4 py-12 md:grid-cols-2 lg:grid-cols-4 lg:px-6">
+    <footer className="mt-12 border-t border-white/50 bg-[linear-gradient(180deg,_rgba(15,23,42,0.98),_rgba(2,6,23,1))] text-slate-200">
+      <div className="mx-auto grid w-full max-w-[1360px] grid-cols-1 gap-8 px-4 py-14 md:grid-cols-2 lg:grid-cols-4 lg:px-6">
         <section>
           <h3 className="font-display text-lg font-bold text-white">SaaSLaunch</h3>
           <p className="mt-3 text-sm text-slate-400">
-            Enterprise-safe website operations for modern digital agencies.
+            Enterprise-safe website operations for B2B agencies that need synchronized publishing, navigation, and governance.
           </p>
         </section>
 
         <section>
           <h4 className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-400">
-            Navigation
+            Site Map
           </h4>
           <ul className="mt-3 space-y-2 text-sm">
-            <li>Home</li>
-            <li>Services</li>
-            <li>Case Studies</li>
-            <li>Client Portal</li>
+            {guestLinks.map((node) => (
+              <li key={node.id}>
+                <Link className="text-slate-300 transition hover:text-white" to={node.route}>
+                  {node.label}
+                </Link>
+              </li>
+            ))}
           </ul>
         </section>
 
